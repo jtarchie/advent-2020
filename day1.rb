@@ -1,15 +1,9 @@
 # frozen_string_literal: true
 
-tracked = {}
-numbers = File.read("day1.txt").split("\n").map(&:to_i)
+numbers = File.read('day1.txt').split("\n").map(&:to_i)
 
-numbers.each do |num|
-  tracked[num] = true
+values = numbers.combination(3).find do |nums|
+  nums.sum == 2020
 end
 
-first = tracked.keys.find do |num|
-  tracked.has_key?(2020 - num)
-end
-
-second = 2020 - first
-puts first * second
+puts values.reduce(:*)
