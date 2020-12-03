@@ -18,19 +18,23 @@ class Board
   end
 end
 
-board = Board.new(filename: 'day3.txt')
+Pattern = Struct.new(:dx, :dy) do
+  def number_of_trees(board)
+    x = 0
+    y = 0
+    count = 0
 
-x = 0
-y = 0
-dx = 3
-dy = 1
-count = 0
+    while y < board.height
+      count += 1 if board.tree?(x, y)
 
-while y < board.height
-  count += 1 if board.tree?(x, y)
-
-  x += dx
-  y += dy
+      x += dx
+      y += dy
+    end
+    count
+  end
 end
 
-puts count
+board = Board.new(filename: 'day3.txt')
+pattern = Pattern.new(3, 1)
+
+puts pattern.number_of_trees(board)
