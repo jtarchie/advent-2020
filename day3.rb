@@ -35,6 +35,16 @@ Pattern = Struct.new(:dx, :dy) do
 end
 
 board = Board.new(filename: 'day3.txt')
-pattern = Pattern.new(3, 1)
+patterns = [
+  Pattern.new(1, 1),
+  Pattern.new(3, 1),
+  Pattern.new(5, 1),
+  Pattern.new(7, 1),
+  Pattern.new(1, 2)
+]
 
-puts pattern.number_of_trees(board)
+number_of_tress = patterns.map do |pattern|
+  pattern.number_of_trees(board)
+end
+
+puts number_of_tress.reduce(:*)
