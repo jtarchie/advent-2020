@@ -16,7 +16,7 @@ class Rules
       lines.each do |rule|
         holding_color = rule.scan(/^(.*) bags contain/).flatten.first
         containing_colors = rule.scan(/(\d+) (.*?) bags?[,.]{1}/).map do |quantity, color|
-          Rule.new(color, quantity)
+          Rule.new(color, quantity.to_i)
         end
 
         rules[holding_color] = containing_colors
@@ -35,6 +35,12 @@ class Rules
     end
   end
 
+  def number_of_bags_color_contains(color_name)
+    rules.fetch(color_name, [0]).sum do |rule|
+      rule.quantity * (number_of_bags_color_contains(rule.name) + 1)
+    end
+  end
+
   private
 
   def lines
@@ -43,10 +49,5 @@ class Rules
 end
 
 rules = Rules.new('day7.txt')
-stack = [['shiny gold']]
 
-until rules.all_colors_contained_within_color.intersection(stack.last).empty?
-  stack << rules.find_colors_containing(stack.last)
-end
-
-puts stack[1..-1].flatten.uniq.size
+puts rules.number_of_bags_color_contains('shiny gold')
