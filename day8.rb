@@ -6,6 +6,8 @@ class Instruction
     @value = value
   end
 
+  attr_reader :type, :value
+
   def run!(accum)
     @visited = true
 
@@ -34,9 +36,38 @@ class Instructions
   def run!
     stack = [0]
 
+    instructions = instructions_from_file(@filename)
+
+    accum = 0
     until instructions[stack.last].executed?
-      @accum, jump = instructions[stack.last].run!(@accum)
+      accum, jump = instructions[stack.last].run!(accum)
       stack << (stack.last + jump)
+    end
+
+    while offset = stack.pop
+      new_instructions = instructions_from_file(@filename)
+
+      new_instructions[offset] = case new_instructions[offset].type
+                                 when 'jmp'
+                                   Instruction.new('nop', 0)
+                                 when 'nop'
+                                   Instruction.new('jmp', new_instructions[offset].value)
+                                 else
+                                   new_instructions[offset]
+                                 end
+
+      counter = 0
+      accum = 0
+
+      loop do
+        accum, jump = new_instructions[counter].run!(accum)
+        if counter == new_instructions.length - 1
+          @accum = accum
+          break
+        end
+        counter += jump
+        break if new_instructions[counter].executed?
+      end
     end
   end
 
@@ -44,15 +75,13 @@ class Instructions
 
   private
 
-  def instructions
-    @instructions ||= begin
-      lines = File.readlines(@filename)
-      lines.map do |line|
-        scanned = line.scan(/(\w+) ([+-]\d+)/).flatten
-        type = scanned[0]
-        value = scanned[1].to_i
-        Instruction.new(type, value)
-      end
+  def instructions_from_file(filename)
+    lines = File.readlines(filename)
+    lines.map do |line|
+      scanned = line.scan(/(\w+) ([+-]\d+)/).flatten
+      type = scanned[0]
+      value = scanned[1].to_i
+      Instruction.new(type, value)
     end
   end
 end
