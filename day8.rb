@@ -32,11 +32,11 @@ class Instructions
   end
 
   def run!
-    counter = 0
+    stack = [0]
 
-    until instructions[counter].executed?
-      @accum, jump = instructions[counter].run!(@accum)
-      counter += jump
+    until instructions[stack.last].executed?
+      @accum, jump = instructions[stack.last].run!(@accum)
+      stack << (stack.last + jump)
     end
   end
 
